@@ -54,6 +54,9 @@ create_deny_rules(){
     #set rule set name
     rule_set_name='deny-rules-from-enforcement-boundaries'
     #create rule set
+    echo ""
+    echo "Creating rule set and deny rules..."
+    echo ""
     rule_sets_post=$(curl https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2/orgs/$ILLUMIO_PCE_ORG_ID/sec_policy/draft/rule_sets -X POST -H 'content-type: application/json' --data-raw '{"name":"'$rule_set_name'","description":"","scopes":[[]]}')
     #get href
     rule_sets_post_href=$(echo $rule_sets_post | jq -r .href)
@@ -67,7 +70,9 @@ create_deny_rules(){
         network_type=$(echo $obj | jq -rc .network_type)
         enabled=$(echo $obj | jq -rc .enabled)
         curl https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2$rule_sets_post_href/deny_rules -X POST -H 'content-type: application/json' --data-raw '{"providers":'$providers',"consumers":'$consumers',"enabled":'$enabled',"ingress_services":'$ingress_services',"egress_services":[],"network_type":"'$network_type'","description":""}'
+        echo ""
     done
+    echo "Complete. Done. Exiting."
 }
 
 BASEDIR=$(dirname -- $0)
