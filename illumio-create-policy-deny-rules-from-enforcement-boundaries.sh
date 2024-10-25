@@ -69,6 +69,7 @@ create_deny_rules(){
         rule_sets_post_href=$(echo $rule_sets_post | jq -r .href)
         #post deny rules
         curl https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2$rule_sets_post_href/deny_rules -X POST -H 'content-type: application/json' --data-raw '{"providers":'$providers',"consumers":'$consumers',"enabled":'$enabled',"ingress_services":'$ingress_services',"egress_services":[],"network_type":"'$network_type'","description":""}'
+        echo ""
     done
     echo "Process complete. Exiting."
 }
