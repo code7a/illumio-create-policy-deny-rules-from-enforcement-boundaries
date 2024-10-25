@@ -53,6 +53,7 @@ EOF
 create_deny_rules(){
     echo ""
     echo "Creating rule sets and deny rules..."
+    echo ""
     #get enforcement boundaries
     enforcement_boundaries=$(curl -s "https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2/orgs/$ILLUMIO_PCE_ORG_ID/sec_policy/active/enforcement_boundaries")
     #for each enforcement boundaries deny rule, create a deny rule in the above rule set
@@ -71,6 +72,7 @@ create_deny_rules(){
         curl https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2$rule_sets_post_href/deny_rules -X POST -H 'content-type: application/json' --data-raw '{"providers":'$providers',"consumers":'$consumers',"enabled":'$enabled',"ingress_services":'$ingress_services',"egress_services":[],"network_type":"'$network_type'","description":""}'
         echo ""
     done
+    echo ""
     echo "Process complete. Exiting."
 }
 
