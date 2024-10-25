@@ -65,7 +65,7 @@ create_deny_rules(){
         network_type=$(echo $obj | jq -rc .network_type)
         enabled=$(echo $obj | jq -rc .enabled)
         #create rule set
-        rule_sets_post=$(curl -s https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2/orgs/$ILLUMIO_PCE_ORG_ID/sec_policy/draft/rule_sets -X POST -H 'content-type: application/json' --data-raw '{"name":"'$name'","description":"","scopes":[[]]}')
+        rule_sets_post=$(curl -s https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2/orgs/$ILLUMIO_PCE_ORG_ID/sec_policy/draft/rule_sets -X POST -H 'content-type: application/json' --data-raw '{"name":"'$name'","description":"migrated from enforcement boundaries","scopes":[[]]}')
         #get href
         rule_sets_post_href=$(echo $rule_sets_post | jq -r .href)
         #post deny rules
