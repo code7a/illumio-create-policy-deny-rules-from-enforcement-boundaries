@@ -12,9 +12,9 @@
 #License for the specific language governing permissions and limitations under
 #the License.
 #
-#version="0.0.1"
+#version="0.0.2"
 #
-#This script will create a new policy all scoped rule set with deny rules from enforcement bounaries.
+#This script will create new policy, all scoped rule sets, with deny rules from enforcement bounaries.
 #
 #jq is required to parse results
 #https://stedolan.github.io/jq/
@@ -51,28 +51,26 @@ EOF
 }
 
 create_deny_rules(){
-    #set rule set name
-    rule_set_name='deny-rules-from-enforcement-boundaries'
-    #create rule set
     echo ""
-    echo "Creating rule set and deny rules..."
-    echo ""
-    rule_sets_post=$(curl https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2/orgs/$ILLUMIO_PCE_ORG_ID/sec_policy/draft/rule_sets -X POST -H 'content-type: application/json' --data-raw '{"name":"'$rule_set_name'","description":"","scopes":[[]]}')
-    #get href
-    rule_sets_post_href=$(echo $rule_sets_post | jq -r .href)
+    echo "Creating rule sets and deny rules..."
     #get enforcement boundaries
     enforcement_boundaries=$(curl -s "https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2/orgs/$ILLUMIO_PCE_ORG_ID/sec_policy/active/enforcement_boundaries")
     #for each enforcement boundaries deny rule, create a deny rule in the above rule set
     echo "$enforcement_boundaries" | jq -c '.[]' | while read -r obj; do
+        name=$(echo $obj | jq -rc .name)
         providers=$(echo $obj | jq -rc .providers)
         consumers=$(echo $obj | jq -rc .consumers)
         ingress_services=$(echo $obj | jq -rc .ingress_services)
         network_type=$(echo $obj | jq -rc .network_type)
         enabled=$(echo $obj | jq -rc .enabled)
+        #create rule set
+        rule_sets_post=$(curl -s https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2/orgs/$ILLUMIO_PCE_ORG_ID/sec_policy/draft/rule_sets -X POST -H 'content-type: application/json' --data-raw '{"name":"'$name'","description":"","scopes":[[]]}')
+        #get href
+        rule_sets_post_href=$(echo $rule_sets_post | jq -r .href)
+        #post deny rules
         curl https://$ILLUMIO_PCE_API_USERNAME:$ILLUMIO_PCE_API_SECRET@$ILLUMIO_PCE_DOMAIN:$ILLUMIO_PCE_PORT/api/v2$rule_sets_post_href/deny_rules -X POST -H 'content-type: application/json' --data-raw '{"providers":'$providers',"consumers":'$consumers',"enabled":'$enabled',"ingress_services":'$ingress_services',"egress_services":[],"network_type":"'$network_type'","description":""}'
-        echo ""
     done
-    echo "Complete. Done. Exiting."
+    echo "Process complete. Exiting."
 }
 
 BASEDIR=$(dirname -- $0)
